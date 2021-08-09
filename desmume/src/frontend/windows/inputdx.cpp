@@ -50,7 +50,7 @@
 #include "hotkey.h"
 #include "main.h"
 #include "winutil.h"
-
+#include "dsInput.h"
 // Gamepad Dialog Strings
 // Support Unicode display
 //#define INPUTCONFIG_TITLE "Input Configuration"
@@ -498,6 +498,7 @@ static void SaveInputConfig()
 BOOL di_init()
 {
 	HWND hParentWnd = MainWindow->getHWnd();
+	dsInput_init();
 
 	pDI = NULL;
 	memset(cDIBuf, 0, sizeof(cDIBuf));
@@ -706,6 +707,51 @@ void CheckAxis_game (int val, int min, int max, bool &first, bool &second)
         second = false;
 }
 
+void UpdateDsJoyState(int idx) 
+{
+	//Joystick[idx].Up = dsInputState.buttons[DSBTN_UP];
+	//Joystick[idx].Left = dsInputState.buttons[DSBTN_LEFT];
+	//Joystick[idx].Right = dsInputState.buttons[DSBTN_RIGHT];
+	//Joystick[idx].Down = dsInputState.buttons[DSBTN_DOWN];
+
+	int THRESHOLD = 70;
+	if (dsInputState.RX < THRESHOLD) Joystick[idx].PovLeft = true;
+	if (dsInputState.RX > 255-THRESHOLD) Joystick[idx].PovRight = true;
+	if (dsInputState.RY < THRESHOLD) Joystick[idx].PovUp = true;
+	if (dsInputState.RY > 255-THRESHOLD) Joystick[idx].PovDown = true;
+
+	if (dsInputState.LX < THRESHOLD) Joystick[idx].Left = true;
+	if (dsInputState.LX > 255 - THRESHOLD) Joystick[idx].Right = true;
+	if (dsInputState.LY < THRESHOLD) Joystick[idx].Up = true;
+	if (dsInputState.LY > 255 - THRESHOLD) Joystick[idx].Down = true;
+
+	for (int i = 0; i < 32; i++)
+	{
+		if (dsInputState.buttons[i])
+			Joystick[idx].Button[i] = true;
+	}
+}
+
+void UpdateDsJoyStateF(int idx)
+{
+	int THRESHOLD = 70;
+	if (dsInputState.RX < THRESHOLD) JoystickChanged(idx, 4);
+	if (dsInputState.RX > 255 - THRESHOLD) JoystickChanged(idx, 5);
+	if (dsInputState.RY < THRESHOLD) JoystickChanged(idx, 6);
+	if (dsInputState.RY > 255 - THRESHOLD) JoystickChanged(idx, 7);
+
+	if (dsInputState.LX < THRESHOLD) JoystickChanged(idx, 0);
+	if (dsInputState.LX > 255 - THRESHOLD) JoystickChanged(idx, 1);
+	if (dsInputState.LY < THRESHOLD) JoystickChanged(idx, 2);
+	if (dsInputState.LY > 255 - THRESHOLD) JoystickChanged(idx, 3);
+
+	for (int i = 0; i < 32; i++) 
+	{
+		if(dsInputState.buttons[i])
+			JoystickChanged(idx, (short)(8 + i));
+	}
+}
+
 void S9xUpdateJoyState()
 {
 	for(int C=0;C<16;C++)
@@ -783,6 +829,7 @@ void S9xUpdateJoyState()
 			}
 		}
 	}
+	UpdateDsJoyState(joyDevices.size());
 }
 
 void di_poll_scan()
@@ -947,7 +994,7 @@ void di_poll_scan()
 			}
 		}
 	} // C loop
-
+	UpdateDsJoyStateF(joyDevices.size());
 }
 
 

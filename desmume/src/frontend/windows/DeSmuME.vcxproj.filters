@@ -930,6 +930,9 @@
     <ClCompile Include="display.cpp">
       <Filter>frontend\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="dsinput.cpp">
+      <Filter>frontend\Windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\utils\guid.h">
@@ -1626,6 +1629,9 @@
       <Filter>frontend\Windows</Filter>
     </ClInclude>
     <ClInclude Include="display.h">
+      <Filter>frontend\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="dsInput.h">
       <Filter>frontend\Windows</Filter>
     </ClInclude>
   </ItemGroup>
